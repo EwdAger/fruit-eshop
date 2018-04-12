@@ -20,7 +20,7 @@ def index(request):
     except EmptyPage:
         products = paginator.page(paginator.num_pages)
 
-    return render(request, 'index.html', locals())
+    return render(request, 'index.html', {"products": products})
 
 def sign_up(request):
     if request.method == 'GET':
@@ -34,7 +34,10 @@ def sign_up(request):
             return render(request, 'sign_up.html')
         user = User.objects.create_user(username,username,password)
         user.save()
+
         messages.add_message(request, messages.SUCCESS, '注册成功')
+        user = authenticate(username=username, password=password)
+        auth.login(request, user)
         return redirect('/')
 
 def log_in(request):
@@ -67,15 +70,74 @@ def add_cart(request):
         else:
             username = request.user.username
             item = request.POST.get('item')
-            user_cart = models.Cart.objects.get(username=username, item=item)
+            price = request.POST.get('price')
 
+            user_cart = models.Cart.objects.filter(username=username, item=item)
             if user_cart:
-                
-            models.Cart.objects.create(username=request.user.username,
-                                       item=request.POST.get('item'),
-                                       num=1,)
-            messages.add_message(request, messages.INFO, "商品"+request.POST.get('item')+"添加成功")
+                user_cart[0].num += 1
+                user_cart[0].save()
+                messages.add_message(request, messages.INFO, "商品: " + item + " 添加成功, 数量: " + str(user_cart[0].num))
+            else:
+                models.Cart.objects.create(username=username, item=item, num=1, price=price)
+                messages.add_message(request, messages.INFO, "商品:"+item+"添加成功, 数量: 1")
             return redirect('/')
+    else:
+        messages.add_message(request, messages.WARNING, "当前页面不存在")
+        return render(request, "404.html")
+
+def cart(request):
+    if not request.user.is_authenticated:
+        messages.add_message(request, messages.WARNING, "请登录")
+        return redirect('/')
+    else:
+        username = request.user.username
+
+        items = models.Cart.objects.filter(username=username)
+
+        return render(request, "cart.html", {"username": username, "items": items})
+
+def cart_option(request):
+    if request.method == 'POST':
+        option = request.POST.get('option')
+        username = request.POST.get('username')
+        item_name = request.POST.get('item')
+
+        if option == '1':
+            item = models.Cart.objects.get(username=username, item=item_name)
+            item.num += 1
+            item.save()
+        elif option == '-1':
+            item = models.Cart.objects.get(username=username, item=item_name)
+            if item.num == 1:
+                item.delete()
+            else:
+                item.num -= 1
+                item.save()
+        elif option == '0':
+            models.Cart.objects.get(username=username, item=item_name).delete()
+
+        return redirect('/cart')
+    else:
+        messages.add_message(request, messages.WARNING, "当前页面不存在")
+        return render(request, "404.html")
+
+def order(request):
+    if request.method == 'POST':
+        option = request.POST.get('option')
+        username = request.POST.get('username')
+        items = models.Cart.objects.filter(username=username)
+
+        if option == 'delete':
+            models.Cart.objects.filter(username=username).delete()
+            messages.add_message(request, messages.INFO, "购物车已清空")
+            return redirect('/')
+
+        elif option == 'submit':
+            total = 0
+            for item in items:
+                total += item.num * item.price
+            return render(request, "order.html", {"total": total, "items": items, "username": username})
+
     else:
         messages.add_message(request, messages.WARNING, "当前页面不存在")
         return render(request, "404.html")

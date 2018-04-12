@@ -10,7 +10,8 @@
                         {% if user.is_authenticated %}
                             <p>Welcome! {{ user.username }}</p>
                         {% else %}
-                            <p>请登录</p>
+                            <a href="/login" class="btn btn-info">立即登录</a>
+                            <a href="/signup" class="btn btn-warning">没有账号?</a>
                         {% endif %}
                     </div>
                 </div>
@@ -42,10 +43,11 @@
                 </div>
                 <div class="text-center">
                     <h4>{{ product.name }}</h4>
-                    <p>{{ product.price }}</p>
+                    <p>{{ product.price }} 元/斤</p>
                     <p>{{ product.description }}</p>
                     <form  method="post" action="/add_cart/">
                         <input type="hidden" name="item" value="{{ product.name }}">
+                        <input type="hidden" name="price" value="{{ product.price }}">
                         <button type="submit" class="btn btn-info">加入购物车</button>
                         {% csrf_token %}
                     </form>

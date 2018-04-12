@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}订单-水果电商{% endblock %}
+
+{% block content %}
+    <div class="row">
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>商品名</th>
+                <th>数量</th>
+                <th>单价</th>
+                <th>总金额</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.item }}</td>
+                    <td>{{ item.num }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>{% widthratio item.num 1 item.price %}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                <h4 class="alert alert-info">总金额: <strong>{{ total }}</strong></h4>
+                {% load static %}
+                <img src="{% static "img/pay.png" %}" class="img-responsive center-block" width="200">
+            </div>
+        </div>
+        <div class="pull-right">
+            <form method="post" action="/order/">
+                <input type="hidden" name="username" value="{{ username }}">
+                <button class="btn btn-success" name="option" value="delete">我已完成支付</button>
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
+{% endblock %}

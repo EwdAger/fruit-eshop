@@ -22,6 +22,7 @@ class Cart(models.Model):
     username = models.CharField(max_length=20, verbose_name="用户名")
     item = models.CharField(max_length=200, verbose_name="产品名称")
     num = models.DecimalField(max_digits=2, decimal_places=0, default=0, verbose_name="数量")
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="价格")
 
     def __unicode__(self):
         return self.username

@@ -19,7 +19,7 @@
             <ul class="nav navbar-nav">
                 <li><a href="/">Home</a></li>
                 {% if user.is_authenticated %}
-                    <li><a href="#">购物车</a></li>
+                    <li><a href="/cart">购物车</a></li>
                     <li><a href="/logout">注销</a></li>
                 {% else %}
                     <li><a href="/login">登录</a></li>
@@ -57,6 +57,7 @@
 </body>
 </html>
 
+{% block js %}
 <script type="text/javascript">
     $(function () {
         $(".close").click(function () {
@@ -64,3 +65,4 @@
         });
     });
 </script>
+{% endblock %}

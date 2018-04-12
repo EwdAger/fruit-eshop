@@ -7,7 +7,7 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('username', 'item', 'num')
+    list_display = ('username', 'item', 'num', 'price')
     list_filter = ('username',)
 
 admin.site.register(models.Product, ProductAdmin)

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}购物车-水果电商{% endblock %}
+
+{% block content %}
+    <div class="row">
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>商品名</th>
+                <th>数量</th>
+                <th>单价</th>
+                <th>总金额</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.item }}</td>
+                    <td>{{ item.num }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>{% widthratio item.num 1 item.price %}</td>
+                    <td>
+                        <form method="post" action="/cart_option/">
+                            <input type="hidden" name="username" value="{{ username }}">
+                            <input type="hidden" name="item" value="{{ item.item }}">
+                            <button class="btn btn-sm btn-info" name="option" value="1">增加</button>
+                            <button class="btn btn-sm btn-info" name="option" value="-1">减少</button>
+                            <button class="btn btn-sm btn-danger" name="option" value="0">删除</button>
+                            {% csrf_token %}
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="pull-right">
+            <form method="post" action="/order/">
+                <input type="hidden" name="username" value="{{ username }}">
+                <button class="btn btn-success" name="option" value="submit">提交订单</button>
+                <button class="btn btn-danger" name="option" value="delete">清空购物车</button>
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}
