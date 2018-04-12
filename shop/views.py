@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 def index(request):
     all_products = models.Product.objects.all()
 
-    paginator = Paginator(all_products, 5)
+    paginator = Paginator(all_products, 4)
     p = request.GET.get('p')
     try:
         products = paginator.page(p)
@@ -58,3 +58,24 @@ def log_out(request):
     auth.logout(request)
     messages.add_message(request, messages.INFO, "成功注销")
     return redirect('/')
+
+def add_cart(request):
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            messages.add_message(request, messages.WARNING, "请登录")
+            return redirect('/')
+        else:
+            username = request.user.username
+            item = request.POST.get('item')
+            user_cart = models.Cart.objects.get(username=username, item=item)
+
+            if user_cart:
+                
+            models.Cart.objects.create(username=request.user.username,
+                                       item=request.POST.get('item'),
+                                       num=1,)
+            messages.add_message(request, messages.INFO, "商品"+request.POST.get('item')+"添加成功")
+            return redirect('/')
+    else:
+        messages.add_message(request, messages.WARNING, "当前页面不存在")
+        return render(request, "404.html")
