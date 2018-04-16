@@ -11,7 +11,7 @@
 
 使用Bootstrap搭建前端页面, 使用Django提供的paginator进行分页.
 
-![主页](https://github.com/EwdAger/fruit-eshop/blob/master/img/1.png)
+![主页](https://github.com/EwdAger/fruit-eshop/blob/master/screenshot/1.png)
 
 ## 后台
 
