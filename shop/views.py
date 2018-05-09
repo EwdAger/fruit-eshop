@@ -29,6 +29,7 @@ def sign_up(request):
     elif request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+
         if User.objects.filter(username=username):
             messages.add_message(request, messages.WARNING, '已存在该用户')
             return render(request, 'sign_up.html')
@@ -71,15 +72,22 @@ def add_cart(request):
             username = request.user.username
             item = request.POST.get('item')
             price = request.POST.get('price')
+            sku = request.POST.get('sku')
 
+            if int(sku) <= 0:
+                messages.add_message(request, messages.WARNING, "商品库存不足 1个，无法加入购物车")
+                return redirect('/')
             user_cart = models.Cart.objects.filter(username=username, item=item)
+            good = models.Product.objects.get(name=item)
+            good.sku -= 1
+            good.save()
             if user_cart:
                 user_cart[0].num += 1
                 user_cart[0].save()
                 messages.add_message(request, messages.INFO, "商品: " + item + " 添加成功, 数量: " + str(user_cart[0].num))
             else:
                 models.Cart.objects.create(username=username, item=item, num=1, price=price)
-                messages.add_message(request, messages.INFO, "商品:"+item+"添加成功, 数量: 1")
+                messages.add_message(request, messages.INFO, "商品:"+item+" 添加成功, 数量: 1")
             return redirect('/')
     else:
         messages.add_message(request, messages.WARNING, "当前页面不存在")
@@ -102,19 +110,30 @@ def cart_option(request):
         username = request.POST.get('username')
         item_name = request.POST.get('item')
 
+        good = models.Product.objects.get(name=item_name)
         if option == '1':
-            item = models.Cart.objects.get(username=username, item=item_name)
-            item.num += 1
-            item.save()
+            if good.sku > 0:
+                good.sku -= 1
+                good.save()
+                item = models.Cart.objects.get(username=username, item=item_name)
+                item.num += 1
+                item.save()
+            else:
+                messages.add_message(request, messages.WARNING, "商品数量不足 1个")
         elif option == '-1':
             item = models.Cart.objects.get(username=username, item=item_name)
+            good.sku += 1
+            good.save()
             if item.num == 1:
                 item.delete()
             else:
                 item.num -= 1
                 item.save()
         elif option == '0':
-            models.Cart.objects.get(username=username, item=item_name).delete()
+            item = models.Cart.objects.get(username=username, item=item_name)
+            good.sku += item.num
+            good.save()
+            item.delete()
 
         return redirect('/cart')
     else:
@@ -126,8 +145,11 @@ def order(request):
         option = request.POST.get('option')
         username = request.POST.get('username')
         items = models.Cart.objects.filter(username=username)
+        good = models.Product.objects.get(name=items[0].item)
 
         if option == 'delete':
+            good.sku += items[0].num
+            good.save()
             models.Cart.objects.filter(username=username).delete()
             messages.add_message(request, messages.INFO, "购物车已清空")
             return redirect('/')
@@ -137,6 +159,28 @@ def order(request):
             for item in items:
                 total += item.num * item.price
             return render(request, "order.html", {"total": total, "items": items, "username": username})
+
+    else:
+        messages.add_message(request, messages.WARNING, "当前页面不存在")
+        return render(request, "404.html")
+
+def add_order(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        location = request.POST.get('location')
+        phone = request.POST.get('phone')
+        username = request.POST.get('username')
+        goods = models.Cart.objects.filter(username=username)
+        item = []
+
+        for good in goods:
+            temp = str(good.item) + 'x' + str(good.num)
+            item.append(temp)
+        item = "\n".join(item)
+        models.Order.objects.create(username=username, name=name, location=location, phone=phone, item=item)
+        goods.delete()
+        messages.add_message(request, messages.INFO, "订单已提交")
+        return redirect('/')
 
     else:
         messages.add_message(request, messages.WARNING, "当前页面不存在")

@@ -4,7 +4,6 @@
 
 {% block content %}
     <div class="row">
-
         <table class="table table-striped">
             <thead>
             <tr>
@@ -26,16 +25,28 @@
             </tbody>
         </table>
         <div class="row">
-            <div class="col-md-4 col-md-offset-4">
-                <h4 class="alert alert-info">总金额: <strong>{{ total }}</strong></h4>
-                {% load static %}
-                <img src="{% static "img/pay.png" %}" class="img-responsive center-block" width="200">
+            <div class="text-center">
+                <h4 class="alert alert-info">订单总金额: <strong>{{ total }}</strong></h4>
             </div>
         </div>
-        <div class="pull-right">
-            <form method="post" action="/order/">
+        <div class="col-md-4 col-md-offset-4">
+            <form class="form-horizontal" method="post" action="/add_order/">
+                <div class="form-group">
+                    <label for="name">收货人姓名</label>
+                    <input id="name" name="name" class="form-control" placeholder="请输入姓名">
+                </div>
+                <div class="form-group">
+                    <label for="location">收货人地址</label>
+                    <input id="location" name="location" class="form-control" placeholder="请输入地址">
+                </div>
+                <div class="form-group">
+                    <label for="phone">收货人电话</label>
+                    <input id="phone" name="phone" class="form-control" placeholder="请输入电话">
+                </div>
                 <input type="hidden" name="username" value="{{ username }}">
-                <button class="btn btn-success" name="option" value="delete">我已完成支付</button>
+                <div class="pull-right">
+                    <button class="btn btn-success" type="submit">我已完成支付</button>
+                </div>
                 {% csrf_token %}
             </form>
         </div>

@@ -26,6 +26,7 @@
                         <form method="post" action="/cart_option/">
                             <input type="hidden" name="username" value="{{ username }}">
                             <input type="hidden" name="item" value="{{ item.item }}">
+                            <input type="hidden" name="num" value="{{ item.num }}">
                             <button class="btn btn-sm btn-info" name="option" value="1">增加</button>
                             <button class="btn btn-sm btn-info" name="option" value="-1">减少</button>
                             <button class="btn btn-sm btn-danger" name="option" value="0">删除</button>
