@@ -27,5 +27,6 @@ urlpatterns = [
     path('cart/', views.cart),
     path('cart_option/', views.cart_option),
     path('order/', views.order),
-    path('add_order/', views.add_order)
+    path('add_order/', views.add_order),
+    path('reset/', views.reset_pwd),
 ]

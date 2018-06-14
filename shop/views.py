@@ -185,3 +185,15 @@ def add_order(request):
     else:
         messages.add_message(request, messages.WARNING, "当前页面不存在")
         return render(request, "404.html")
+
+def reset_pwd(request):
+    if request.method == "GET":
+        username = request.user.username
+        return render(request, "reset.html", {"username": username})
+    else:
+        pwd = request.POST.get("password")
+        u = User.objects.get(username=request.user.username)
+        u.set_password(pwd)
+        u.save()
+        messages.add_message(request, messages.SUCCESS, "密码修改成功")
+        return redirect('/login')
